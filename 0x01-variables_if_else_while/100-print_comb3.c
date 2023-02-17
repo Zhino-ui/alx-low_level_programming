@@ -1,35 +1,30 @@
-/*
- * File: 10-print_comb2.c
- * Auth: Brennan D Baraban
- */
-
 #include <stdio.h>
 
 /**
- * main - Prints the numbers from 00 to 99, numbers separated by
- *        a comma followed by a space, in ascending order.
+ *main - print 00 to 99 with no duplicate digits or combos: no 11, no 10 (01)
  *
- * Return: Always 0.
+ *Return: Always 0 (Success)
  */
+
 int main(void)
 {
-	int digit1, digit2;
+	int ones;
+	int tens;
 
-	for (digit1 = 0; digit1 < 10; digit1++)
+	for (tens = '0'; tens <= '9'; tens++) /*increment tens*/
 	{
-		for (digit2 = 0; digit2 < 10; digit2++)
+		for (ones = (tens + 1); ones <= '9'; ones++) /*one's ten+1*/
 		{
-			putchar((digit1 % 10) + '0');
-			putchar((digit2 % 10) + '0');
+			putchar(tens);
+			putchar(ones);
 
-			if (digit1 == 9 && digit2 == 9)
-				continue;
-			
-			putchar(',');
-			putchar(' ');
+			if (tens != '8' || ones != '9') /*print commas*/
+			{
+				putchar(',');
+				putchar(' ');
+			}
 		}
 	}
-
 	putchar('\n');
 
 	return (0);
