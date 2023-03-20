@@ -1,105 +1,83 @@
+#include <stdio.h>
 #include <stdlib.h>
-	#include "dog.h"
+#include "dog.h"
 
+/**
+ * len - find length of string
+ * @str: string
+ * Return: length
+ */
+int len(char *str)
+{
+	int i;
 
-	/**
-	 * *_strlen - returns the length of a string
-	 * @s: string to evaluate
-	 *
-	 * Return: the length of the string
-	 */
-	int _strlen(char *s)
+	for (i = 0; *(str + i); i++)
+		;
+	return (i);
+}
+/**
+ * _strcpy - copies the string pointed to by src,
+ * including the terminating null byte (\0),
+ * to the buffer pointed to by dest
+ * @dest: copy source to this buffer
+ * @src: this is the source to copy
+ * Return: copy of original source
+ */
+char *_strcpy(char *dest, char *src)
+{
+	int i;
+
+	for (i = 0; i <= len(src); i++)
+		dest[i] = src[i];
+	return (dest);
+}
+/**
+ * new_dog - create new instance of struct dog
+ * @name: member
+ * @age: member
+ * @owner: member
+ * Return: initialized instance of struct dog
+ */
+dog_t *new_dog(char *name, float age, char *owner)
+{
+	dog_t *dog1;
+	char *copy_of_name;
+	char *copy_of_owner;
+
+	dog1 = malloc(sizeof(dog_t)); /* validate if dog1 initiated correctly */
+	if (dog1 == NULL)
+		return (NULL);
+
+	dog1->age = age;
+
+	/* make copies of struct members and validate, else free on error */
+	/* set values of struct members to copies of arguments or set to NULL */
+	if (name != NULL)
 	{
-		int i;
-
-
-		i = 0;
-
-
-		while (s[i] != '\0')
+		copy_of_name = malloc(len(name) + 1);
+		if (copy_of_name == NULL)
 		{
-			i++;
-		}
-
-
-		return (i);
-	}
-
-
-	/**
-	 * _strcpy - copies the string pointed to by src
-	 * including the terminating null byte (\0)
-	 * to the buffer pointed to by dest
-	 * @dest: pointer to the buffer in which we copy the string
-	 * @src: string to be copied
-	 *
-	 * Return: the pointer to dest
-	 */
-	char *_strcpy(char *dest, char *src)
-	{
-		int len, i;
-
-
-		len = 0;
-
-
-		while (src[len] != '\0')
-		{
-			len++;
-		}
-
-
-		for (i = 0; i < len; i++)
-		{
-			dest[i] = src[i];
-		}
-		dest[i] = '\0';
-
-
-		return (dest);
-	}
-
-
-	/**
-	 * *new_dog - creates a new dog
-	 * @name: name of the dog
-	 * @age: age of the dog
-	 * @owner: owner of the dog
-	 *
-	 * Return: pointer to the new dog (Success), NULL otherwise
-	 */
-	dog_t *new_dog(char *name, float age, char *owner)
-	{
-		dog_t *dog;
-		int len1, len2;
-
-
-		len1 = _strlen(name);
-		len2 = _strlen(owner);
-
-
-		dog = malloc(sizeof(dog_t));
-		if (dog == NULL)
-			return (NULL);
-
-
-		dog->name = malloc(sizeof(char) * (len1 + 1));
-		if (dog->name == NULL)
-		{
-			free(dog);
+			free(dog1);
 			return (NULL);
 		}
-		dog->owner = malloc(sizeof(char) * (len2 + 1));
-		if (dog->owner == NULL)
+		dog1->name = _strcpy(copy_of_name, name);
+	}
+	else
+		dog1->name = NULL;
+
+	if (owner != NULL)
+	{
+		copy_of_owner = malloc(len(owner) + 1);
+		if (copy_of_owner == NULL)
 		{
-			free(dog);
-			free(dog->name);
+			free(copy_of_name);
+			free(dog1);
 			return (NULL);
 		}
-		_strcpy(dog->name, name);
-		_strcpy(dog->owner, owner);
-		dog->age = age;
-
-
-		return (dog);
+		dog1->owner = _strcpy(copy_of_owner, owner);
 	}
+	else
+		dog1->owner = NULL;
+
+	return (dog1);
+}
