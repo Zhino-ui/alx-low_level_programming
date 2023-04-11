@@ -2,94 +2,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char *create_buffer(char *file);
-void close_file(int fd);
-
 /*
- * create_buffer - 1024 allocation
- * @file: file
- * Return : value
+ * __exit - exit
+ * @error: error
+ * @s: string
+ * #fd : filename
+ * Return: value
  */
 
-char *create_buffer(char *file)
+int __exit(int error, char *s, int fd)
 {
-	char *buf;
-
-	buf = malloc(sizeof(char) * 1024);
-
-	if (buf == NULL)
+	switch (error)
 	{
-		dprintf(STDERR_FILENO, "error: cannot write to %s\n", file);
-		exit(99);
-	}
-	return (buf);
-}
-
-/*
- * close_file -closes file
- * @fd: descriptor
- */
-
-void close_file(int fd)
-{
-	int x;
-
-	x = close(fd);
-
-	if (x == -1)
-	{
-		dprintf(STDERR_FILENO, "error: cannot close fd %d\n", td);
-		exit(100);
+		case 97:
+			dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+			exit(error);
+		case 98:
+			dprintf(STDERR_FILENO, "Error: cannot read from %s\n", s);
+			exit(error);
+		case 99:
+			dprintf(STDERR_FILENO, "Error: cannot write to %s\n", s);
+			exit(error);
+		case 100:
+			dprintf(STDERR_FILENO, "Error: cannot close fd %d\n", fd);
+			exit(error);
+		default:
+			return (0);
 	}
 }
 
 /*
- * main - copy file contents to another file
- * @argc: number of arguments
- * @argv: array
- * Return: 0 on success
- * Description: exit(97) if count is incorrect.
- * exit(98): if file_from cannot be read
- * exit(99): if file_to cannot be written
- * exit(100): cannot be closes
+ * main - copy contents of a file to another
+ * @argc: arguments
+ * @argv: array pointer
+ * Return: 0on success
  */
-
 int main(int argc, char *argv[])
 {
-	int from, to, r, w;
-	char *buf;
+	int fd_1, fd_2, k_read, k_write;
+	char *buf[1024];
 
 	if (argc != 3)
+		__exit(97, NULL, 0);
+
+	fd_2 = open(argv[2], O_CREAT | O_TRUNC | O_WRONLY, 0664);
+	if (fd_2 == -1)
 	{
-		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
-		exit(97);
+		__exit(99, argv[2], 0);
+	}
+	fd_1 = open(argv[1], O_RDONLY);
+	if (fd_1 == -1)
+	{
+		__exit(98, argv[1], 0);
 	}
 
-	buf = create_buffer(argv[2]);
-	from = open(argv[1], O_RDONLY);
-	r = read(from, buf, 1024);
-	to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
-
-	do {
-		if (from == -1 || r == -1)
+	while ((k_read = read(fd_1, buf, 1024)) != 0)
+	{
+		if (k_read == -1)
 		{
-			dprintf(STDERR_FILENO, "error: cannot read from %s\n", argv[1]);
-			free(buf);
-			exit(98);
+			__exit(98, argv[1], 0);
 		}
-		w = write(to, buf, r);
-		if (to == -1 || w == -1)
+		k_write = write(fd_2, buf, k_read);
+		if (k_write == -1)
 		{
-			dprintf(STDERR_FILENO, "error: cannot write to %s\n", argv[2]);
-			free(buf);
-			exit(99);
+			__exit(99, argv[2], 0);
 		}
-
-		r = read(from, buf, 1024);
-		to = open(argv[2], O_WRONLY | O_APPEND);
-	} while (r > 0);
-	free(buf);
-	close_file(from);
-	close_file(to);
+	}
+	close(fd_2) == -1 ? (__exit(100, NULL, fd_2)) : close(fd_2);
+	close(fd_1) == -1 ? (__exit(100, NULL, fd_1)) : close(fd_1);
 	return (0);
 }
